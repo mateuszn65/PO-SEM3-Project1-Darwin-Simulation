@@ -1,5 +1,4 @@
-package ahg.ics.oop;
-import agh.ics.oop.MapDirection;
+package agh.ics.oop;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
