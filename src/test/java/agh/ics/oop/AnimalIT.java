@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AnimalIT {
     @Test
-    public void animalMovesTest(){
+    public void animalMoveTest(){
         Animal zwierzak = new Animal();
         String[] args = {"forward", "f", "r", "f", "kot", "left", "f"};
         MoveDirection[] con_args = OptionsParser.parse(args);
@@ -24,11 +24,23 @@ public class AnimalIT {
         int i = 1;
         for (MoveDirection move: con_args) {
             zwierzak.move(move);
-            System.out.println(zwierzak);
+            //System.out.println(zwierzak);
             assertTrue(zwierzak.isIn(), "not in");
             assertTrue(zwierzak.equals(exp_pos[i], exp_dir[i]), "wrong position");
             i += 1;
         }
+    }
 
+    @Test
+    public void mapTest(){
+        String[] args = {"f", "b", "r", "l", "f", "f", "r", "r", "f", "f", "f", "f", "f", "f", "f", "f"};
+        MoveDirection[] directions = new OptionsParser().parse(args);
+        IWorldMap map = new RectangularMap(10, 5);
+
+        Vector2d[] positions = {new Vector2d(2, 2), new Vector2d(3, 4)};
+        SimulationEngine engine = new SimulationEngine(directions, map, positions);
+        engine.run();
+        assertTrue(engine.getAnimal(0).isAt(new Vector2d(2, 0)));
+        assertTrue(engine.getAnimal(1).isAt(new Vector2d(3, 4)));
     }
 }

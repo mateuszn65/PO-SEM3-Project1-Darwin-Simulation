@@ -40,21 +40,29 @@ public class World {
 //        run(dirs);
 //        out.println("system zakonczyl dzialanie");
 
-        Animal kot = new Animal();
-        System.out.println(kot);
-//        kot.move(MoveDirection.RIGHT);
-//        kot.move(MoveDirection.FORWARD);
-//        kot.move(MoveDirection.FORWARD);
-//        kot.move(MoveDirection.FORWARD);
+//        Animal kot = new Animal();
 //        System.out.println(kot);
-        String[] dir = {"r", "f", "f", "forward"};
-        //MoveDirection[] dir2 = OptionsParser.parse(dir);
-        MoveDirection[] dir2 = OptionsParser.parse(args);
-        for(MoveDirection move : dir2){
-            kot.move(move);
+////        kot.move(MoveDirection.RIGHT);
+////        kot.move(MoveDirection.FORWARD);
+////        kot.move(MoveDirection.FORWARD);
+////        kot.move(MoveDirection.FORWARD);
+////        System.out.println(kot);
+//        String[] dir = {"r", "f", "f", "forward"};
+//        //MoveDirection[] dir2 = OptionsParser.parse(dir);
+//        MoveDirection[] dir2 = OptionsParser.parse(args);
+//        for(MoveDirection move : dir2){
+//            kot.move(move);
+//
+//        }
+//        System.out.println(kot);
 
-        }
-        System.out.println(kot);
 
+
+        MoveDirection[] directions = new OptionsParser().parse(args);
+        IWorldMap map = new RectangularMap(10, 5);
+
+        Vector2d[] positions = {new Vector2d(2, 2), new Vector2d(3, 4)};
+        IEngine engine = new SimulationEngine(directions, map, positions);
+        engine.run();
     }
 }
