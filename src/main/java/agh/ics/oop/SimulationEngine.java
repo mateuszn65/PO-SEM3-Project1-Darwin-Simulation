@@ -24,13 +24,13 @@ public class SimulationEngine implements IEngine{
 
     @Override
     public void run() {
-        Animal a = new Animal();
         int n = animals.size();
         for (int i = 0; i < this.moves.length; i++){
-            if (i% n == 0){
+            if (i % n == 0){
                 System.out.println(this.map);
             }
             animals.get(i % n).move(moves[i]);
         }
+        System.out.println(this.map);
     }
 }

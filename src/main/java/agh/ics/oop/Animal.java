@@ -1,24 +1,23 @@
 package agh.ics.oop;
 
 
-public class Animal {
-    private Vector2d position = new Vector2d(2,2);
+
+public class Animal extends AbstractMapElement{
     private MapDirection direction = MapDirection.NORTH;
     private final IWorldMap map;
     public Animal(){
+        super(new Vector2d(2,2));
         this.map = new RectangularMap(5, 5);
     }
     public Animal(IWorldMap map){
+        super(new Vector2d(2,2));
         this.map = map;
     }
     public Animal(IWorldMap map, Vector2d initialPosition){
+        super(initialPosition);
         this.map = map;
-        this.position = initialPosition;
     }
 
-    public Vector2d getPosition() {
-        return position;
-    }
     public MapDirection getDirection() {
         return direction;
     }
@@ -30,10 +29,6 @@ public class Animal {
             case SOUTH -> "v";
             case NORTH -> "^";
         };
-    }
-
-    public boolean isAt(Vector2d position){
-        return this.position.equals(position);
     }
 
     public boolean isIn() {
@@ -50,13 +45,13 @@ public class Animal {
             case RIGHT -> this.direction = this.direction.next();
             case FORWARD -> {
                 Vector2d f = this.position.add(this.direction.toUnitVector());
-                if (!this.map.isOccupied(f) && this.map.canMoveTo(f)) {
+                if (this.map.canMoveTo(f)) {
                     this.position = f;
                 }
             }
             case BACKWARD -> {
                 Vector2d b = this.position.subtract(this.direction.toUnitVector());
-                if (!this.map.isOccupied(b) && this.map.canMoveTo(b)) {
+                if (this.map.canMoveTo(b)) {
                     this.position = b;
                 }
             }

@@ -42,5 +42,7 @@ public class AnimalIT {
         engine.run();
         assertTrue(engine.getAnimal(0).isAt(new Vector2d(2, 0)));
         assertTrue(engine.getAnimal(1).isAt(new Vector2d(3, 4)));
+        assertEquals(engine.getAnimal(0).getDirection(), MapDirection.SOUTH);
+        assertEquals(engine.getAnimal(1).getDirection(), MapDirection.NORTH);
     }
 }
