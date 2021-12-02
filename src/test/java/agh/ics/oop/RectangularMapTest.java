@@ -47,7 +47,6 @@ public class RectangularMapTest {
     }
     @Test
     public void objectAtTest() {
-        System.out.println((this.kot));
         assertEquals(this.map.objectAt(new Vector2d (2,2)), this.kot);
         assertEquals(this.map.objectAt(new Vector2d (3,4)), this.pies);
         assertNull(this.map.objectAt(new Vector2d(3,5)));

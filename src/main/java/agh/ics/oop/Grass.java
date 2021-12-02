@@ -5,10 +5,6 @@ public class Grass extends AbstractMapElement{
         super(position);
     }
     @Override
-    public Boolean canWalkOver() {
-        return true;
-    }
-    @Override
     public String toString() {
         return "*";
     }

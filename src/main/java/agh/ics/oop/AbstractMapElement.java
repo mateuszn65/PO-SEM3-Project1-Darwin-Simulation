@@ -15,8 +15,4 @@ public abstract class AbstractMapElement implements IMapElement{
     public Boolean isAt(Vector2d position) {
         return this.position.equals(position);
     }
-    @Override
-    public Boolean canWalkOver() {
-        return false;
-    }
 }
