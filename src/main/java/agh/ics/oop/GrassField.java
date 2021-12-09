@@ -19,7 +19,10 @@ public class GrassField extends AbstractWorldMap{
         while (isOccupied(randpos)){
             randpos = new Vector2d(generator.nextInt(this.bound), generator.nextInt(this.bound));
         }
-        this.mapElements.put(randpos, new Grass(randpos));
+        IMapElement tmp = new Grass(randpos);
+        this.mapElements.put(randpos, tmp);
+        this.mapBoundary.addMapElement(tmp);
+
     }
     public void randomGrass(){
         for(int i = 0; i < n; i ++){
@@ -27,28 +30,17 @@ public class GrassField extends AbstractWorldMap{
         }
     }
     public Vector2d getLowerLeft() {
-        Vector2d lowerCorner = new Vector2d(Integer.MAX_VALUE, Integer.MAX_VALUE);
-        for(IMapElement e: this.mapElements.values()){
-            lowerCorner = lowerCorner.lowerLeft(e.getPosition());
-        }
-        return lowerCorner;
+        return this.mapBoundary.getLowerLeft();
     }
     public Vector2d getUpperRight() {
-        Vector2d rightCorner = new Vector2d(Integer.MIN_VALUE, Integer.MIN_VALUE);
-        for(IMapElement e: this.mapElements.values()){
-            rightCorner = rightCorner.upperRight(e.getPosition());
-        }
-        return rightCorner;
+        return this.mapBoundary.getUpperRight();
     }
     @Override
     public void positionChange(Vector2d oldPosition, Vector2d newPosition) {
         if (isOccupied(newPosition)){
             addGrass();
         }
-        IMapElement e = objectAt(oldPosition);
-        this.mapElements.remove(oldPosition);
-        this.mapElements.put(newPosition, e);
-
+        super.positionChange(oldPosition, newPosition);
     }
     @Override
     public boolean place(Animal animal) {
@@ -57,9 +49,11 @@ public class GrassField extends AbstractWorldMap{
                     (objectAt(animal.getPosition()) instanceof Grass)){
                     addGrass();
                 }
-            this.mapElements.put(animal.position, animal);
+            this.mapElements.put(animal.getPosition(), animal);
+            this.mapBoundary.addMapElement(animal);
             return true;
+        }else{
+            throw new IllegalArgumentException("Animal on position " + animal.getPosition() + " is not valid");
         }
-        return false;
     }
 }

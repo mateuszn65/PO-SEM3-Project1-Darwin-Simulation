@@ -37,8 +37,18 @@ public class GrassFieldTest {
 
     @Test
     public void placeTest(){
-        assertFalse(this.map.place(this.kot));
-        assertFalse(this.map.place(this.pies));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                ()->{
+                    this.map.place(this.kot);
+                });
+        assertTrue(ex.getMessage().contains("Animal on position "));
+        assertTrue(ex.getMessage().contains("is not valid"));
+        IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class,
+                ()->{
+                    this.map.place(this.pies);
+                });
+        assertTrue(ex2.getMessage().contains("Animal on position "));
+        assertTrue(ex2.getMessage().contains("is not valid"));
         assertTrue(this.map.place(new Animal(this.map, new Vector2d(10,6)) ));
     }
 

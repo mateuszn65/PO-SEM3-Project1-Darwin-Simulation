@@ -26,6 +26,7 @@ public class OptionsParser {
                     i += 1;
                 }
                 default -> {
+                    throw new IllegalArgumentException(el + " is not legal move specificiation");
                 }
             }
         }
