@@ -25,6 +25,16 @@ public class Animal extends AbstractMapElement{
         return direction;
     }
 
+    @Override
+    public String getImagePath() {
+        return switch (this.getDirection()){
+            case EAST -> "src/main/resources/right.png";
+            case WEST -> "src/main/resources/left.png";
+            case SOUTH -> "src/main/resources/down.png";
+            case NORTH -> "src/main/resources/up.png";
+        };
+    }
+
     public String toString(){
         return switch (this.direction){
             case EAST -> ">";
