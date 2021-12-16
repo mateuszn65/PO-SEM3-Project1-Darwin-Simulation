@@ -5,10 +5,6 @@ public class Grass extends AbstractMapElement{
         super(position);
     }
 
-    @Override
-    public String getImagePath() {
-        return "src/main/resources/grass.png";
-    }
 
     @Override
     public String toString() {

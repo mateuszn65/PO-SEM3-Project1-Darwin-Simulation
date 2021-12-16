@@ -3,32 +3,25 @@ package agh.ics.oop;
 import agh.ics.oop.gui.App;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class SimulationEngine implements IEngine, Runnable{
-    private final int moveDelay = 700;
-    protected MoveDirection[] moves;
-    protected AbstractWorldMap map;
+    private final int moveDelay = 30;
+    protected WallMap map;
     protected final List<Animal> animals = new ArrayList<>();
     protected List<IGUIObserver> observers = new ArrayList<>();
-    public SimulationEngine(MoveDirection[] moves, IWorldMap map, Vector2d[] positions){
-        this.moves = moves;
-        this.map = (AbstractWorldMap) map;
-        placeAnimals(positions);
+    private boolean paused = false;
+
+    public void tooglePaused() {
+        this.paused = !this.paused;
     }
-    public SimulationEngine(IWorldMap map, Vector2d[] positions){
-        this.map = (AbstractWorldMap) map;
-        placeAnimals(positions);
+
+    public SimulationEngine(WallMap map){
+        this.map = (WallMap) map;
+        this.map.randomlyPlaceAnimals();
     }
-    private void placeAnimals(Vector2d[] positions){
-        for(Vector2d pos : positions){
-            Animal a = new Animal(this.map, pos);
-            a.addObserver(this.map);
-            if(this.map.place(a)){
-                animals.add(a);
-            }
-        }
-    }
+
     public void addObserver(IGUIObserver observer){
         this.observers.add(observer);
     }
@@ -41,23 +34,28 @@ public class SimulationEngine implements IEngine, Runnable{
 
     @Override
     public void run() {
-        Vector2d v1 = new Vector2d(0,0);
-        Vector2d v2= new Vector2d(0,0);
-        int n = animals.size();
-        for (int i = 0; i < this.moves.length; i++){
-            animals.get(i % n).move(moves[i]);
-            for (IGUIObserver observer: this.observers){
-                observer.updateGUI();
+        for (int i = 0; i < 10000; i++) {
+            this.map.removeDeadAnimals();
+            this.map.addGrass();
+            Animal[] animals = this.map.animalsList.toArray(new Animal[0]);
+            for (Animal animal : animals) {
+                animal.move(animal.genes.getRandomGen());
+                for (IGUIObserver observer : this.observers) {
+                    observer.updateGUI();
+                }
+                try {
+                    Thread.sleep(this.moveDelay);
+                } catch (InterruptedException ex) {
+                    System.out.println("Something went wrong");
+                }
             }
-            if (i % n == 0){
-                System.out.println(this.map);
-            }
-            try{
-                Thread.sleep(this.moveDelay);
-            }catch (InterruptedException ex){
-                System.out.println("Something went wrong");
+            this.map.checkForEating();
+            this.map.nextDay();
+            this.map.checkForCopulation();
+            while (this.paused){
+                Thread.onSpinWait();
             }
         }
-        System.out.println(this.map);
+
     }
 }

@@ -6,15 +6,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected Map<Vector2d, IMapElement> mapElements = new LinkedHashMap<>();
     protected Vector2d lowerLeft;
     protected Vector2d upperRight;
-    protected MapVisualizer vis = new MapVisualizer(this);
-    protected MapBoundary mapBoundary = new MapBoundary(this);
+
 
     @Override
-    public void positionChange(Vector2d oldPosition, Vector2d newPosition) {
-        IMapElement e = objectAt(oldPosition);
+    public void positionChange(Animal animal,Vector2d oldPosition, Vector2d newPosition) {
         this.mapElements.remove(oldPosition);
-        this.mapElements.put(newPosition, e);
-        this.mapBoundary.positionChange(oldPosition, newPosition);
+        this.mapElements.put(newPosition, animal);
 
     }
     public boolean canMoveTo(Vector2d position) {
@@ -29,7 +26,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public boolean place(Animal animal) {
         if (canMoveTo(animal.getPosition())){
             this.mapElements.put(animal.getPosition(), animal);
-            this.mapBoundary.addMapElement(animal);
             return true;
         }else{
             throw new IllegalArgumentException("Animal on position " + animal.getPosition() + " is not valid");
@@ -47,7 +43,5 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
     public abstract Vector2d getLowerLeft();
     public abstract Vector2d getUpperRight();
-    public String toString(){
-        return this.vis.draw(getLowerLeft(), getUpperRight());
-    }
+
 }
