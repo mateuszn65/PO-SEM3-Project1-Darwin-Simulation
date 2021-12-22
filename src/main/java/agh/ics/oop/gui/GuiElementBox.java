@@ -6,32 +6,20 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 
 public class GuiElementBox {
-    private Image image;
-    private ImageView imageView;
+
     private VBox vBox;
     public GuiElementBox(IMapElement mapElement, AbstractWorldMap map, Color color, int cellSize){
 
-//        try{
-//            this.image = new Image(new FileInputStream(mapElement.getImagePath()));
-//        }
-//        catch (FileNotFoundException ex){
-//            System.out.println("File not found");
-//        }
-//        this.imageView = new ImageView(this.image);
-//        this.imageView.setFitWidth(20);
-//        this.imageView.setFitHeight(20);
+
         this.vBox = new VBox();
         if (mapElement instanceof Animal && map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition()) > 0){
             int animalsCount = map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition());
@@ -45,7 +33,7 @@ public class GuiElementBox {
             }
 
             button.setOnAction(e->{
-                System.out.println("hyhy");
+                //to do
             });
 
             button.setMinSize(cellSize, cellSize);

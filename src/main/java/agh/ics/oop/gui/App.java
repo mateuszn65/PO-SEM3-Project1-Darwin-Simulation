@@ -96,7 +96,7 @@ public class App extends Application implements IGUIObserver{
 
 
 
-        this.scene2 = new Scene(this.mainBox, 800+2*this.cellSize*this.mapWidth, 800+2*this.cellSize*this.mapHeight);
+        this.scene2 = new Scene(this.mainBox, 800+2*this.cellSize*this.mapWidth, 600+2*this.cellSize*this.mapHeight);
         this.window.setScene(scene2);
 
 

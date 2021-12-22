@@ -67,32 +67,6 @@ public class Animal extends AbstractMapElement{
         return child;
     }
 
-
-//    public void move(MoveDirection direction){
-//
-//        switch (direction) {
-//            case LEFT -> this.direction = this.direction.previous();
-//            case RIGHT -> this.direction = this.direction.next();
-//            case FORWARD -> {
-//                Vector2d f = this.position.add(this.direction.toUnitVector());
-//                if (this.map.canMoveTo(f)) {
-//                    Vector2d oldPosition = getPosition();
-//                    this.position = f;
-//                    positionChange(oldPosition);
-//                }
-//            }
-//            case BACKWARD -> {
-//                Vector2d b = this.position.subtract(this.direction.toUnitVector());
-//                if (this.map.canMoveTo(b)) {
-//                    Vector2d oldPosition = getPosition();
-//                    this.position = b;
-//                    positionChange(oldPosition);
-//                }
-//            }
-//        }
-//
-//    }
-
     public void move(int x){
         switch (x){
             case 0 -> {

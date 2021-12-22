@@ -19,7 +19,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected Map<Vector2d, Grass> grassMap = new HashMap<>();
     protected LinkedList<Animal> animalsList = new LinkedList<>();
     protected LinkedList<Grass> grassList = new LinkedList<>();
-    private int totalNumberOfDeadAnimals = 0, sumOfLivedDays = 0;
+    protected LinkedList<int[]> genesList = new LinkedList<>();
+    private int totalNumberOfDeadAnimals = 0, sumOfLivedDays = 0, numberOfDays = 0;
     private float sumOfChildren = 0;
 
 
@@ -66,6 +67,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public float getAverageChildren(){
         return (float) Math.round(this.sumOfChildren/getNumberOfAnimals() * 100f) / 100f;
     }
+    public int getNumberOfDays(){
+        return this.numberOfDays;
+    }
+
+    // to do comperator to sort genes
+//    public int[] getGenotype(){
+//        this.genesList.sort();
+//        for (int[] genes : this.genesList){
+//
+//        }
+//    }
 
 
     abstract public Vector2d convertPosition(Vector2d position);
@@ -92,6 +104,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 this.animalMap.put(animal.position, tmp);
             }
             this.animalsList.add(animal);
+            this.genesList.add(animal.genes.genes);
             animal.addObserver(this);
             return true;
         }else{
@@ -185,6 +198,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             animal.changeEnergy(this.moveEnergy);
             animal.daysLived++;
         }
+        this.numberOfDays++;
     }
 
     public void checkForEating(){
@@ -221,7 +235,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     public void checkForCopulation(){
-        for (SortedSet<Animal> animalsOnSamePosition: this.animalMap.values()){
+        SortedSet<Animal>[] animalsOnSamePositionToIter = this.animalMap.values().toArray(new SortedSet[0]);
+
+        for (SortedSet<Animal> animalsOnSamePosition: animalsOnSamePositionToIter){
             if (animalsOnSamePosition != null && animalsOnSamePosition.size() >= 2){
                 Iterator<Animal> iterator = animalsOnSamePosition.iterator();
                 Animal parent1 = animalsOnSamePosition.first(), parent2;
@@ -258,7 +274,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
             removeAnimal(animal, animal.position);
             animal.removeObserver(this);
+            this.genesList.remove(animal.genes.genes);
             this.animalsList.remove(animal);
+
         }
     }
 
