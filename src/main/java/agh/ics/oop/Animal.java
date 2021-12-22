@@ -97,6 +97,7 @@ public class Animal extends AbstractMapElement{
         switch (x){
             case 0 -> {
                 Vector2d f = this.position.add(this.direction.toUnitVector());
+                f = this.map.convertPosition(f);
                 if (this.map.canMoveTo(f)) {
                     Vector2d oldPosition = getPosition();
                     this.position = f;
@@ -116,6 +117,7 @@ public class Animal extends AbstractMapElement{
             }
             case 4 ->{
                 Vector2d b = this.position.subtract(this.direction.toUnitVector());
+                b = this.map.convertPosition(b);
                 if (this.map.canMoveTo(b)) {
                     Vector2d oldPosition = getPosition();
                     this.position = b;

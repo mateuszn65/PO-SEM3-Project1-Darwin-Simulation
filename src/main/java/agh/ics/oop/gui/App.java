@@ -18,7 +18,6 @@ import java.text.ParseException;
 import java.util.List;
 
 public class App extends Application implements IGUIObserver{
-
     private Stage window;
     private Scene scene1, scene2;
     //Starting parameters
@@ -29,86 +28,93 @@ public class App extends Application implements IGUIObserver{
             startEnergy = 50,
             moveEnergy = 1,
             plantEnergy = 5;
+    private final int cellSize = 25;
 
-    private WallMap map = new WallMap();
-    private Jungle jungle = new Jungle(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
-    private GridPane grid = new GridPane();
-    private VBox stats = new VBox(20);
-    private VBox map1 = new VBox(20);
-    private HBox mainBox = new HBox(20);
-    private SimulationEngine engine;
+    private final Jungle jungle = new Jungle(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
+
+    private final AbstractWorldMap wrappedMap = new WrappedMap();
+    private final AbstractWorldMap wallMap = new WallMap();
+    private MapGrid wrappedGrid;
+    private MapGrid wallGrid;
+    private StatsDisplay wrappedStats;
+    private StatsDisplay wallStats;
+    private final VBox wrappedMapVBox = new VBox(20);
+    private final VBox wallMapVBox = new VBox(20);
+    private final HBox mainBox = new HBox(20);
+    private SimulationEngine wrappedEngine;
+    private SimulationEngine wallEngine;
+    private Thread wrappedEngineThread;
+    private Thread wallEngineThread;
+
+
     @Override
     public void init(){
-        this.stats.setMinWidth(200);
-        this.stats.setStyle("-fx-padding: 10;");
-        this.grid.setStyle("-fx-padding: 10;");
 
-        Button pauseMap1 = new Button("Pause map 1");
-        pauseMap1.setOnAction(e->{
-            this.engine.tooglePaused();
+    }
 
-            if (pauseMap1.getText().contains("Unpause")){
-                pauseMap1.setText("Pause map 1");
+    private void _init(){
+        this.jungle.setJungleCorners(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
+        this.wrappedMap.setParameters(this.mapWidth, this.mapHeight, this.jungle, this.startingNumberOfAnimals, this.startEnergy, this.moveEnergy, this.plantEnergy);
+        this.wallMap.setParameters(this.mapWidth, this.mapHeight, this.jungle, this.startingNumberOfAnimals, this.startEnergy, this.moveEnergy, this.plantEnergy);
+
+        this.wrappedEngine = new SimulationEngine(this.wrappedMap);
+        this.wallEngine = new SimulationEngine(this.wallMap);
+        this.wrappedEngine.addObserver(this);
+        this.wallEngine.addObserver(this);
+
+        this.wrappedGrid = new MapGrid(this.wrappedMap, this.mapWidth, this.mapHeight, this.cellSize, this. jungle);
+        this.wallGrid = new MapGrid(this.wallMap, this.mapWidth, this.mapHeight, this.cellSize, this. jungle);
+
+        Button pauseWrappedMap = new Button("Pause map");
+        pauseWrappedMap.setOnAction(e->{
+            this.wrappedEngine.tooglePaused();
+            if (pauseWrappedMap.getText().contains("Unpause")){
+                pause(pauseWrappedMap);
             }else {
-                pauseMap1.setText("Unpause map 1");
+                unpause(pauseWrappedMap);
             }
         });
-        this.map1.getChildren().addAll(this.grid, pauseMap1);
-        this.map1.setAlignment(Pos.TOP_CENTER);
-        this.mainBox.getChildren().addAll(this.stats, this.map1);
-
-
-    }
-    public void updateGrid(){
-
-        this.grid.getColumnConstraints().clear();
-        this.grid.getRowConstraints().clear();
-
-        Label label = new Label("y/x");
-        this.grid.add(label, 0, 0);
-        this.grid.getColumnConstraints().add(new ColumnConstraints(20));
-        this.grid.getRowConstraints().add(new RowConstraints(20));
-        GridPane.setHalignment(label, HPos.CENTER);
-
-        Vector2d ll = new Vector2d(0 ,0);;
-        Vector2d ur = new Vector2d(this.mapWidth - 1, this.mapHeight - 1);
-        //col
-        for (int i = 0; i < ur.x - ll.x + 1; i++){
-            label = new Label("" + (ll.x + i));
-            this.grid.add(label, i+1, 0);
-            this.grid.getColumnConstraints().add(new ColumnConstraints(20));
-            GridPane.setHalignment(label, HPos.CENTER);
-        }
-        //row
-        for (int i = 0; i < ur.y - ll.y + 1; i++){
-            label = new Label("" + (ur.y - ll.y - i));
-            this.grid.add(label, 0, i+1);
-            this.grid.getRowConstraints().add(new RowConstraints(20));
-            GridPane.setHalignment(label, HPos.CENTER);
-        }
-        //el
-        for(int i = 0; i < ur.x - ll.x + 1; i++){
-            for(int j = 0; j < ur.y - ll.y + 1; j++){
-
-                IMapElement mapElement = this.map.objectAt(new Vector2d((ll.x + i),(ur.y - j)));
-                if (mapElement != null){
-                    //label = new Label("" + mapElement);
-                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.DARKGREEN);
-                    this.grid.add(guiElementBox.getvBox(), i+1,j+1);
-                    //GridPane.setHalignment(label, HPos.CENTER);
-                }else if (this.jungle.belongsToJungle(new Vector2d(i,j))){
-                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.LIGHTGREEN);
-                    this.grid.add(guiElementBox.getvBox(), i+1,j+1);
-                }else{
-                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.YELLOW);
-                    this.grid.add(guiElementBox.getvBox(), i+1,j+1);
-                }
+        Button pauseWallMap = new Button("Pause map");
+        pauseWallMap.setOnAction(e->{
+            this.wallEngine.tooglePaused();
+            if (pauseWallMap.getText().contains("Unpause")){
+                pause(pauseWallMap);
+            }else {
+                unpause(pauseWallMap);
             }
-        }
+        });
+        this.wrappedMapVBox.getChildren().addAll(this.wrappedGrid.getGrid(), pauseWrappedMap);
+        this.wallMapVBox.getChildren().addAll(this.wallGrid.getGrid(), pauseWallMap);
+
+        this.wrappedMapVBox.setAlignment(Pos.TOP_CENTER);
+        this.wallMapVBox.setAlignment(Pos.TOP_CENTER);
+
+        this.wrappedStats = new StatsDisplay(this.wrappedMap);
+        this.wallStats = new StatsDisplay(this.wallMap);
+
+        this.mainBox.getChildren().addAll(this.wrappedStats.getStats(), this.wrappedMapVBox, this.wallStats.getStats(), this.wallMapVBox);
 
 
 
+        this.scene2 = new Scene(this.mainBox, 800+2*this.cellSize*this.mapWidth, 800+2*this.cellSize*this.mapHeight);
+        this.window.setScene(scene2);
+
+
+
+        this.wrappedEngineThread = new Thread(this.wrappedEngine);
+        this.wallEngineThread = new Thread(this.wallEngine);
+        wrappedEngineThread.start();
+        wallEngineThread.start();
     }
+
+    private void pause(Button button){
+        button.setText("Pause map");
+    }
+    private void unpause(Button button){
+        button.setText("Unpause map");
+    }
+
+
     private VBox startScene(){
 
         Label widthLabel = new Label("Map Width");
@@ -165,18 +171,10 @@ public class App extends Application implements IGUIObserver{
                 this.moveEnergy = Integer.parseInt(moveEnergyInput.getText());
                 this.plantEnergy = Integer.parseInt(plantEnergyInput.getText());
 
-                this.scene2 = new Scene(this.mainBox, 300+20*this.mapWidth, 300+20*this.mapHeight);
-                this.window.setScene(scene2);
+                _init();
 
 
 
-                this.jungle.setJungleCorners(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
-                this.map.setParameters(this.mapWidth, this.mapHeight, this.jungle, this.startingNumberOfAnimals, this.startEnergy, this.moveEnergy, this.plantEnergy);
-
-                this.engine = new SimulationEngine(this.map);
-                this.engine.addObserver(this);
-                Thread engineThread = new Thread(this.engine);
-                engineThread.start();
             }catch (NumberFormatException ex){
                 AlertBox.display("Wrong Input", "Can't convert input into Integer");
             }
@@ -190,21 +188,6 @@ public class App extends Application implements IGUIObserver{
         return vBox;
     }
 
-    private void updateStats(){
-        Label numOfAniamls = new Label("Number of Animals:  " + this.map.getNumberOfAnimals());
-        Label numOfGrass = new Label("Number of Grasses:  " + this.map.getNumberOfGrass());
-        Label averageEnergy = new Label("Average Energy:  " + this.map.getAverageEnergy());
-        Label averageLengthOfLife = new Label();
-        if (this.map.getTotalNumberOfDeadAnimals()>0){
-            averageLengthOfLife.setText("Average Length of Life:  " + this.map.getAverageLengthOfLife());
-        }else {
-            averageLengthOfLife.setText("Average Length of Life:  ");
-        }
-        Label averageChildren = new Label("Average Number of Children:  " + this.map.getAverageChildren());
-
-
-        this.stats.getChildren().addAll(numOfAniamls, numOfGrass, averageEnergy, averageLengthOfLife, averageChildren);
-    }
 
     @Override
     public void start(Stage primaryStage){
@@ -215,17 +198,28 @@ public class App extends Application implements IGUIObserver{
 
         this.window.setScene(scene1);
         this.window.show();
-        updateGrid();
     }
 
     @Override
-    public void updateGUI() {
+    public void updateGUI(boolean wrapped) {
         Platform.runLater(()->{
-            this.grid.getChildren().clear();
-            updateGrid();
-            this.stats.getChildren().clear();
-            updateStats();
-        });
+            if (wrapped){
+                this.wrappedGrid.updateGrid();
+                this.wrappedStats.updateStats();
+            } else{
+                this.wallGrid.updateGrid();
+                this.wallStats.updateStats();
+            }
 
+        });
+    }
+
+    @Override
+    public void stop() throws Exception {
+
+        this.wallEngineThread.interrupt();
+        this.wrappedEngineThread.interrupt();
+
+        super.stop();
     }
 }

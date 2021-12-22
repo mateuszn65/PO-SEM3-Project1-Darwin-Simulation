@@ -4,6 +4,7 @@ import agh.ics.oop.*;
 import agh.ics.oop.IMapElement;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,8 +21,7 @@ public class GuiElementBox {
     private Image image;
     private ImageView imageView;
     private VBox vBox;
-    private Label label;
-    public GuiElementBox(IMapElement mapElement, WallMap map, Color color){
+    public GuiElementBox(IMapElement mapElement, AbstractWorldMap map, Color color, int cellSize){
 
 //        try{
 //            this.image = new Image(new FileInputStream(mapElement.getImagePath()));
@@ -34,17 +34,37 @@ public class GuiElementBox {
 //        this.imageView.setFitHeight(20);
         this.vBox = new VBox();
         if (mapElement instanceof Animal && map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition()) > 0){
-            this.label = new Label("" + map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition()));
-            this.vBox.setBackground(new Background(new BackgroundFill(((Animal) mapElement).getColor(), CornerRadii.EMPTY, Insets.EMPTY)));
-        }else {
-            this.label = new Label("");
-            this.vBox.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
-        }
+            int animalsCount = map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition());
+            Button button = new Button("" + animalsCount);
+            if (animalsCount >= 100){
+                button.setStyle("-fx-font-size: 8");
+            }else if (animalsCount >= 10){
+                button.setStyle("-fx-font-size: 10");
+            }else {
+                button.setStyle("-fx-font-size: 12");
+            }
 
-        this.vBox.getChildren().add(this.label);
+            button.setOnAction(e->{
+                System.out.println("hyhy");
+            });
+
+            button.setMinSize(cellSize, cellSize);
+            button.setMaxSize(cellSize, cellSize);
+            button.setPrefSize(cellSize, cellSize);
+
+            button.setBackground(new Background(new BackgroundFill(((Animal) mapElement).getColor(), CornerRadii.EMPTY, Insets.EMPTY)));
+            this.vBox.getChildren().add(button);
+
+        }else {
+
+            Label label = new Label("");
+            this.vBox.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+            this.vBox.getChildren().add(label);
+        }
         this.vBox.setAlignment(Pos.CENTER);
-        //this.vBox.setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
     }
+
+
     public VBox getvBox() {
         return vBox;
     }

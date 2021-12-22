@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SimulationEngine implements IEngine, Runnable{
     private final int moveDelay = 30;
-    protected WallMap map;
+    protected AbstractWorldMap map;
     protected final List<Animal> animals = new ArrayList<>();
     protected List<IGUIObserver> observers = new ArrayList<>();
     private boolean paused = false;
@@ -17,8 +17,8 @@ public class SimulationEngine implements IEngine, Runnable{
         this.paused = !this.paused;
     }
 
-    public SimulationEngine(WallMap map){
-        this.map = (WallMap) map;
+    public SimulationEngine(AbstractWorldMap map){
+        this.map = map;
         this.map.randomlyPlaceAnimals();
     }
 
@@ -28,34 +28,34 @@ public class SimulationEngine implements IEngine, Runnable{
     public void removeObserver(IGUIObserver observer) {
         this.observers.remove(observer);
     }
-    public Animal getAnimal(int i) {
-        return animals.get(i);
-    }
+
 
     @Override
     public void run() {
-        for (int i = 0; i < 10000; i++) {
-            this.map.removeDeadAnimals();
-            this.map.addGrass();
-            Animal[] animals = this.map.animalsList.toArray(new Animal[0]);
-            for (Animal animal : animals) {
-                animal.move(animal.genes.getRandomGen());
-                for (IGUIObserver observer : this.observers) {
-                    observer.updateGUI();
-                }
-                try {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                this.map.removeDeadAnimals();
+                this.map.addGrass();
+                Animal[] animals = this.map.animalsList.toArray(new Animal[0]);
+                for (Animal animal : animals) {
+                    //pause here?
+
+                    animal.move(animal.genes.getRandomGen());
+                    for (IGUIObserver observer : this.observers) {
+                        observer.updateGUI(this.map instanceof WrappedMap);
+                    }
                     Thread.sleep(this.moveDelay);
-                } catch (InterruptedException ex) {
-                    System.out.println("Something went wrong");
                 }
-            }
-            this.map.checkForEating();
-            this.map.nextDay();
-            this.map.checkForCopulation();
-            while (this.paused){
-                Thread.onSpinWait();
+                this.map.checkForEating();
+                this.map.nextDay();
+                this.map.checkForCopulation();
+                // or here?
+                while (this.paused){
+                    Thread.onSpinWait();
+                }
+            } catch (InterruptedException ex) {
+                break;
             }
         }
-
     }
 }
