@@ -6,6 +6,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
+import java.util.Arrays;
+
 public class StatsDisplay {
     private final VBox stats;
     private final AbstractWorldMap map;
@@ -47,7 +49,14 @@ public class StatsDisplay {
 
         Label numOfAniamls = new Label("Number of Animals:  " + this.map.getNumberOfAnimals());
         Label numOfGrass = new Label("Number of Grasses:  " + this.map.getNumberOfGrass());
-        Label averageEnergy = new Label("Average Energy:  " + this.map.getAverageEnergy());
+        Label dominantGenotype = new Label("Dominant Genotype:  " + this.map.getDominantGenotype());
+        Label averageEnergy = new Label();
+        if (this.map.getAverageEnergy() == -1){
+            averageEnergy.setText("Average Energy:  ");
+        }else {
+            averageEnergy.setText("Average Energy:  " + this.map.getAverageEnergy());
+        }
+
         Label averageLengthOfLife = new Label();
         if (this.map.getTotalNumberOfDeadAnimals()>0){
             averageLengthOfLife.setText("Average Length of Life:  " + this.map.getAverageLengthOfLife());
@@ -55,7 +64,7 @@ public class StatsDisplay {
             averageLengthOfLife.setText("Average Length of Life:  ");
         }
         Label averageChildren = new Label("Average Number of Children:  " + this.map.getAverageChildren());
-        this.stats.getChildren().addAll(this.plot, numOfAniamls, numOfGrass, averageEnergy, averageLengthOfLife, averageChildren);
+        this.stats.getChildren().addAll(this.plot, numOfAniamls, numOfGrass, dominantGenotype, averageEnergy, averageLengthOfLife, averageChildren);
     }
     public void updateStats(){
         this.stats.getChildren().clear();

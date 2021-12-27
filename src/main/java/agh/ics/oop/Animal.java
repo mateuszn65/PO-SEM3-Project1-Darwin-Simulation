@@ -26,19 +26,28 @@ public class Animal extends AbstractMapElement{
     public MapDirection getDirection() {
         return direction;
     }
+    public String getGenotype(){
+        StringBuilder resString = new StringBuilder();
+        for (int i = 0; i < this.genes.genes.length; i++){
+            resString.append(this.genes.genes[i]);
+            resString.append(" ");
+        }
+        return resString.toString();
 
+    }
 
     public String toString(){
-        return switch (this.direction){
-            case EAST -> ">";
-            case WEST -> "<";
-            case SOUTH -> "v";
-            case NORTH -> "^";
-            case NORTHWEST -> "<^";
-            case SOUTHWEST -> "<v";
-            case NORTHEAST -> "^>";
-            case SOUTHEAST -> "v>";
-        };
+        return ""+ this.energy;
+//        return switch (this.direction){
+//            case EAST -> ">";
+//            case WEST -> "<";
+//            case SOUTH -> "v";
+//            case NORTH -> "^";
+//            case NORTHWEST -> "<^";
+//            case SOUTHWEST -> "<v";
+//            case NORTHEAST -> "^>";
+//            case SOUTHEAST -> "v>";
+//        };
     }
 
 

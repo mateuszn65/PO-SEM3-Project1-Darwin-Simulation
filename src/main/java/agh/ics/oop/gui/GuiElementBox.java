@@ -34,6 +34,7 @@ public class GuiElementBox {
 
             button.setOnAction(e->{
                 //to do
+                FollowingBox.display("Chosen animal", "This animals's genotype is \n " + ((Animal) mapElement).getGenotype());
             });
 
             button.setMinSize(cellSize, cellSize);

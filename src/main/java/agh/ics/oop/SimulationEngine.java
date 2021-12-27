@@ -9,7 +9,6 @@ import java.util.List;
 public class SimulationEngine implements IEngine, Runnable{
     private final int moveDelay = 30;
     protected AbstractWorldMap map;
-    protected final List<Animal> animals = new ArrayList<>();
     protected List<IGUIObserver> observers = new ArrayList<>();
     private boolean paused = false;
 
@@ -28,29 +27,32 @@ public class SimulationEngine implements IEngine, Runnable{
     public void removeObserver(IGUIObserver observer) {
         this.observers.remove(observer);
     }
-
+    public void guiChange(){
+        for (IGUIObserver observer : this.observers) {
+            observer.updateGUI(this.map instanceof WrappedMap);
+        }
+    }
 
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                this.map.removeDeadAnimals();
                 this.map.addGrass();
+                guiChange();
                 Animal[] animals = this.map.animalsList.toArray(new Animal[0]);
+                if (animals.length == 0)
+                    break;
                 for (Animal animal : animals) {
-                    //pause here?
-
                     animal.move(animal.genes.getRandomGen());
-                    for (IGUIObserver observer : this.observers) {
-                        observer.updateGUI(this.map instanceof WrappedMap);
-                    }
+                    guiChange();
                     Thread.sleep(this.moveDelay);
                 }
                 this.map.checkForEating();
                 this.map.nextDay();
                 this.map.checkForCopulation();
-                // or here?
-                while (this.paused){
+                this.map.removeDeadAnimals();
+                guiChange();
+                while (this.paused && !Thread.currentThread().isInterrupted()){
                     Thread.onSpinWait();
                 }
             } catch (InterruptedException ex) {

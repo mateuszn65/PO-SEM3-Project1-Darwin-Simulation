@@ -216,9 +216,11 @@ public class App extends Application implements IGUIObserver{
 
     @Override
     public void stop() throws Exception {
+        if (this.window.getScene() == this.scene2){
+            this.wallEngineThread.interrupt();
+            this.wrappedEngineThread.interrupt();
+        }
 
-        this.wallEngineThread.interrupt();
-        this.wrappedEngineThread.interrupt();
 
         super.stop();
     }
