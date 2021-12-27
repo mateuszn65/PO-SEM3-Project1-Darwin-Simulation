@@ -28,9 +28,9 @@ public class MapGrid {
         this.jungle = jungle;
         this.grid = new GridPane();
         this.grid.setStyle("-fx-padding: 10;");
-        _updateGrid();
+        _updateGrid(null);
     }
-    private void _updateGrid(){
+    private void _updateGrid(int[] dominant){
         Label label = new Label("y/x");
         this.grid.add(label, 0, 0);
         this.grid.getColumnConstraints().add(new ColumnConstraints(this.cellSize));
@@ -59,13 +59,13 @@ public class MapGrid {
                 IMapElement mapElement = this.map.objectAt(new Vector2d((ll.x + i),(ur.y - j)));
 
                 if (mapElement != null){
-                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.DARKGREEN, this.cellSize);
+                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.DARKGREEN, this.cellSize, dominant);
                     this.grid.add(guiElementBox.getvBox(), i+1,j+1);
                 }else if (this.jungle.belongsToJungle(new Vector2d(i,j))){
-                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.LIGHTGREEN, this.cellSize);
+                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.LIGHTGREEN, this.cellSize, dominant);
                     this.grid.add(guiElementBox.getvBox(), i+1,j+1);
                 }else{
-                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.YELLOW, this.cellSize);
+                    GuiElementBox guiElementBox = new GuiElementBox(mapElement, this.map, Color.YELLOW, this.cellSize, dominant);
                     this.grid.add(guiElementBox.getvBox(), i+1,j+1);
                 }
             }
@@ -76,7 +76,14 @@ public class MapGrid {
         this.grid.getChildren().clear();
         this.grid.getColumnConstraints().clear();
         this.grid.getRowConstraints().clear();
-        _updateGrid();
+        _updateGrid(null);
+    }
+
+    public void displayDominants(int[] dominant){
+        this.grid.getChildren().clear();
+        this.grid.getColumnConstraints().clear();
+        this.grid.getRowConstraints().clear();
+        _updateGrid(dominant);
     }
 
     public GridPane getGrid() {

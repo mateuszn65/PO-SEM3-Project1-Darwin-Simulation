@@ -12,12 +12,13 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import java.util.Arrays;
 
 
 public class GuiElementBox {
 
     private VBox vBox;
-    public GuiElementBox(IMapElement mapElement, AbstractWorldMap map, Color color, int cellSize){
+    public GuiElementBox(IMapElement mapElement, AbstractWorldMap map, Color color, int cellSize, int[] dominant){
 
 
         this.vBox = new VBox();
@@ -33,8 +34,7 @@ public class GuiElementBox {
             }
 
             button.setOnAction(e->{
-                //to do
-                FollowingBox.display("Chosen animal", "This animals's genotype is \n " + ((Animal) mapElement).getGenotype());
+                TrackingBox.display((Animal) mapElement, map);
             });
 
             button.setMinSize(cellSize, cellSize);
@@ -44,6 +44,13 @@ public class GuiElementBox {
             button.setBackground(new Background(new BackgroundFill(((Animal) mapElement).getColor(), CornerRadii.EMPTY, Insets.EMPTY)));
             this.vBox.getChildren().add(button);
 
+            if (dominant != null){
+                button.setDisable(true);
+                if (map.isDominantAt(mapElement.getPosition(), dominant)){
+                    button.setVisible(false);
+                    this.vBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+                }
+            }
         }else {
 
             Label label = new Label("");

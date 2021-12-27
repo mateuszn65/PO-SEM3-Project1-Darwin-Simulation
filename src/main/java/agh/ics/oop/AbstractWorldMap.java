@@ -21,6 +21,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected LinkedList<Animal> animalsList = new LinkedList<>();
     protected LinkedList<Grass> grassList = new LinkedList<>();
     protected LinkedList<int[]> genotypesList = new LinkedList<>();
+    protected Tracer tracer = new Tracer();
     private int totalNumberOfDeadAnimals = 0, sumOfLivedDays = 0, numberOfDays = 0;
     private float sumOfChildren = 0;
 
@@ -35,6 +36,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.lowerLeft = new Vector2d(0 ,0);
         this.upperRight = new Vector2d(width - 1, height - 1);
         this.jungle = jungle;
+    }
+
+    public Tracer getTracer() {
+        return tracer;
     }
 
     public int getNumberOfAnimalsOnSamePosition(Vector2d position){
@@ -74,7 +79,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return this.numberOfDays;
     }
 
-    public String getDominantGenotype(){
+    public int[] getArrayDominantGenotype(){
         int[] res = {};
         if (this.genotypesList.size() > 0){
             this.genotypesList.sort(new GenotypeComparator());
@@ -96,6 +101,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
             res = this.genotypesList.get(maxAt);
         }
+        return res;
+    }
+    public String getDominantGenotype(){
+        int[] res = getArrayDominantGenotype();
 
         StringBuilder resString = new StringBuilder();
         for (int i = 0; i < 10; i++){
@@ -136,7 +145,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 this.animalMap.put(animal.position, tmp);
             }
             this.animalsList.add(animal);
-            this.genotypesList.add(animal.genes.genes);
+            this.genotypesList.add(animal.genes.genotype);
             animal.addObserver(this);
             return true;
         }else{
@@ -153,6 +162,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             return this.grassMap.get(position);
         }
         return animalsOnSamePosition.getFirst();
+    }
+    public boolean isDominantAt(Vector2d position, int[] dominant){
+        LinkedList<Animal> animalsOnSamePosition = this.animalMap.get(position);
+        if (animalsOnSamePosition == null || animalsOnSamePosition.size() == 0){
+            return false;
+        }
+        for (Animal animal : animalsOnSamePosition){
+            if (Arrays.equals(dominant, animal.getArrayGenotype()))
+                return true;
+        }
+        return false;
     }
 
     public void addGrass(){
@@ -218,8 +238,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
     }
 
-
-    private boolean randomlyPlaceAnimal(){
+    private Vector2d getRandomPositionToPlaceAnimal(){
         Random generator = new Random();
         int toManyTimes = this.mapWidth*this.mapHeight*4;
         Vector2d randpos = new Vector2d(generator.nextInt(this.mapWidth), generator.nextInt(this.mapHeight));
@@ -227,7 +246,13 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             randpos = new Vector2d(generator.nextInt(this.mapWidth), generator.nextInt(this.mapHeight));
             toManyTimes--;
         }
-        if (toManyTimes == 0) return false;
+        if (toManyTimes == 0) return null;
+        return randpos;
+    }
+
+    private boolean randomlyPlaceAnimal(){
+        Vector2d randpos = getRandomPositionToPlaceAnimal();
+        if (randpos == null) return false;
         Animal tmp = new Animal(this, randpos, this.startEnergy);
         place(tmp);
         return true;
@@ -244,6 +269,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             animal.daysLived++;
         }
         this.numberOfDays++;
+        if (this.tracer.isActive && !this.tracer.animal.isDead())
+            this.tracer.daysTraced++;
     }
 
     public void checkForEating(){
@@ -298,6 +325,15 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                             parent1.children++;
                             parent2.children++;
                             this.sumOfChildren += 2;
+
+                            if (this.tracer.isActive){
+                                if (parent1 == this.tracer.animal || parent2 == this.tracer.animal){
+                                    this.tracer.numberOfChildren++;
+                                    this.tracer.descendants.add(child);
+                                }else if (this.tracer.descendants.contains(parent1) || this.tracer.descendants.contains(parent2)){
+                                    this.tracer.descendants.add(child);
+                                }
+                            }
                         }
                         break;
                     }
@@ -313,6 +349,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             Animal animal = this.animalsList.get(i);
             if (animal.isDead()){
                 deadAnimals.add(animal);
+
             }
         }
         for (Animal animal: deadAnimals){
@@ -322,13 +359,23 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
             removeAnimal(animal, animal.position);
             animal.removeObserver(this);
-            this.genotypesList.remove(animal.genes.genes);
+            this.genotypesList.remove(animal.genes.genotype);
             this.animalsList.remove(animal);
-
         }
+        if (this.tracer.isActive && this.tracer.animal.isDead() && this.tracer.epochOfDeath == -1)
+            this.tracer.epochOfDeath = this.numberOfDays;
     }
 
-
+    public void magicEvolution(){
+        Animal[] animals = this.animalsList.toArray(new Animal[0]);
+        for (Animal animal : animals){
+            Vector2d randpos = getRandomPositionToPlaceAnimal();
+            if (randpos == null) return;
+            Animal tmp = new Animal(this, randpos, this.startEnergy);
+            tmp.genes.genotype = animal.genes.genotype.clone();
+            place(tmp);
+        }
+    }
 
 
     public Vector2d getLowerLeft() {

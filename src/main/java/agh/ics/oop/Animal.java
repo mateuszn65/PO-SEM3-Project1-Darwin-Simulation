@@ -26,10 +26,13 @@ public class Animal extends AbstractMapElement{
     public MapDirection getDirection() {
         return direction;
     }
+    public int[] getArrayGenotype(){
+        return this.genes.genotype;
+    }
     public String getGenotype(){
         StringBuilder resString = new StringBuilder();
-        for (int i = 0; i < this.genes.genes.length; i++){
-            resString.append(this.genes.genes[i]);
+        for (int i = 0; i < this.genes.genotype.length; i++){
+            resString.append(this.genes.genotype[i]);
             resString.append(" ");
         }
         return resString.toString();
@@ -37,24 +40,21 @@ public class Animal extends AbstractMapElement{
     }
 
     public String toString(){
-        return ""+ this.energy;
-//        return switch (this.direction){
-//            case EAST -> ">";
-//            case WEST -> "<";
-//            case SOUTH -> "v";
-//            case NORTH -> "^";
-//            case NORTHWEST -> "<^";
-//            case SOUTHWEST -> "<v";
-//            case NORTHEAST -> "^>";
-//            case SOUTHEAST -> "v>";
-//        };
+        return switch (this.direction){
+            case EAST -> this.energy + " > ";
+            case WEST -> this.energy + " < ";
+            case SOUTH -> this.energy + " v ";
+            case NORTH -> this.energy + " ^ ";
+            case NORTHWEST -> this.energy + " <^ ";
+            case SOUTHWEST -> this.energy + " <v ";
+            case NORTHEAST -> this.energy + " ^> ";
+            case SOUTHEAST -> this.energy + " v> ";
+        };
     }
 
 
 
-    public boolean equals(Vector2d pos, MapDirection dir){
-        return this.position.equals(pos) && this.direction.equals(dir);
-    }
+
 
     public boolean isDead() {
         return this.energy <= 0;

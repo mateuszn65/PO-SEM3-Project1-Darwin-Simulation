@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import agh.ics.oop.gui.AlertBox;
+import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -15,8 +17,12 @@ public class StatsDisplay {
     private final XYChart.Series<Number,Number> dataSeriesAnimals;
     private final XYChart.Series<Number,Number> dataSeriesGrass;
     private final NumberAxis xAxis;
-    public StatsDisplay(AbstractWorldMap map){
+    private final boolean magic;
+    private int magicCounter = 0;
+    private int displayCounter = 0;
+    public StatsDisplay(AbstractWorldMap map, boolean magic){
         this.map = map;
+        this.magic = magic;
         this.stats = new VBox(20);
         this.stats.setMinWidth(200);
         this.stats.setStyle("-fx-padding: 10;");
@@ -46,6 +52,20 @@ public class StatsDisplay {
             this.xAxis.setUpperBound(days);
 
         }
+        this.stats.getChildren().add(this.plot);
+        if (this.magic){
+            if (this.map.getNumberOfAnimals() == 5 && this.magicCounter < 3){
+                this.map.magicEvolution();
+                this.magicCounter++;
+                this.displayCounter = 1;
+            }
+            if (this.displayCounter > 0 && this.displayCounter < 200){
+                Label magicLabel = new Label("MAGIC HAPPEND!!!");
+                this.stats.getChildren().add(magicLabel);
+                this.displayCounter++;
+            }
+        }
+
 
         Label numOfAniamls = new Label("Number of Animals:  " + this.map.getNumberOfAnimals());
         Label numOfGrass = new Label("Number of Grasses:  " + this.map.getNumberOfGrass());
@@ -64,11 +84,23 @@ public class StatsDisplay {
             averageLengthOfLife.setText("Average Length of Life:  ");
         }
         Label averageChildren = new Label("Average Number of Children:  " + this.map.getAverageChildren());
-        this.stats.getChildren().addAll(this.plot, numOfAniamls, numOfGrass, dominantGenotype, averageEnergy, averageLengthOfLife, averageChildren);
+        this.stats.getChildren().addAll(numOfAniamls, numOfGrass, dominantGenotype, averageEnergy, averageLengthOfLife, averageChildren);
     }
     public void updateStats(){
         this.stats.getChildren().clear();
         _updateStats();
+        if (this.map.tracer.isActive){
+            _updateTracingStats();
+        }
+    }
+
+    private void _updateTracingStats(){
+        Label chosenAnimal = new Label("TRACED ANIMAL:   " + this.map.tracer.animal);
+        chosenAnimal.setAlignment(Pos.CENTER);
+        Label numberOfChildren = new Label("Number of children:  " + this.map.tracer.getNumberOfChildren());
+        Label numberOfDescendants = new Label("Number od descendants:  " + this.map.tracer.getNumberOfDescendants());
+        Label epochOfDeath = new Label(this.map.tracer.getEpochOfDeath());
+        this.stats.getChildren().addAll(chosenAnimal, numberOfChildren, numberOfDescendants, epochOfDeath);
     }
 
     public VBox getStats() {

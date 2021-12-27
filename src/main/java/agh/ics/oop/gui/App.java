@@ -7,10 +7,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
@@ -28,6 +30,7 @@ public class App extends Application implements IGUIObserver{
             startEnergy = 50,
             moveEnergy = 1,
             plantEnergy = 5;
+    private boolean wrappedMagic, wallMagic;
     private final int cellSize = 25;
 
     private final Jungle jungle = new Jungle(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
@@ -65,32 +68,72 @@ public class App extends Application implements IGUIObserver{
         this.wrappedGrid = new MapGrid(this.wrappedMap, this.mapWidth, this.mapHeight, this.cellSize, this. jungle);
         this.wallGrid = new MapGrid(this.wallMap, this.mapWidth, this.mapHeight, this.cellSize, this. jungle);
 
-        Button pauseWrappedMap = new Button("Pause map");
+        Button dominantsWrappedMap = new Button();
+        dominantsWrappedMap.setOnAction(e->{
+            if (dominantsWrappedMap.getText().contains("Show")){
+                this.wrappedGrid.displayDominants(this.wrappedMap.getArrayDominantGenotype());
+                dominantsWrappedMap.setText("Hide animals with \ndominant genotype");
+            }
+            else{
+                this.wrappedGrid.updateGrid();
+                dominantsWrappedMap.setText("Show animals with \ndominant genotype");
+            }
+        });
+        Button saveWrappedMap = new Button("Save to file");
+        Button stopTrackingWrappedMap = new Button("Stop tracking");
+        stopTrackingWrappedMap.setOnAction(e -> {
+            this.wrappedMap.getTracer().stopTracking();
+            this.wrappedStats.updateStats();
+        });
+        Button pauseWrappedMap = new Button();
         pauseWrappedMap.setOnAction(e->{
             this.wrappedEngine.tooglePaused();
             if (pauseWrappedMap.getText().contains("Unpause")){
-                pause(pauseWrappedMap);
+                unpause(pauseWrappedMap, dominantsWrappedMap, saveWrappedMap, stopTrackingWrappedMap);
             }else {
-                unpause(pauseWrappedMap);
+                pause(pauseWrappedMap, dominantsWrappedMap, saveWrappedMap);
+                if (this.wrappedMap.getTracer().isActive())
+                    stopTrackingWrappedMap.setVisible(true);
             }
         });
-        Button pauseWallMap = new Button("Pause map");
+        unpause(pauseWrappedMap, dominantsWrappedMap, saveWrappedMap, stopTrackingWrappedMap);
+        Button dominantsWallMap = new Button();
+        dominantsWallMap.setOnAction(e->{
+            if (dominantsWallMap.getText().contains("Show")){
+                this.wallGrid.displayDominants(this.wallMap.getArrayDominantGenotype());
+                dominantsWallMap.setText("Hide animals with \ndominant genotype");
+            }
+            else{
+                this.wallGrid.updateGrid();
+                dominantsWallMap.setText("Show animals with \ndominant genotype");
+            }
+        });
+        Button saveWallMap = new Button("Save to file");
+        Button stopTrackingWallMap = new Button("Stop tracking");
+        stopTrackingWallMap.setOnAction(e -> {
+            this.wallMap.getTracer().stopTracking();
+            this.wallStats.updateStats();
+        });
+        Button pauseWallMap = new Button();
         pauseWallMap.setOnAction(e->{
             this.wallEngine.tooglePaused();
             if (pauseWallMap.getText().contains("Unpause")){
-                pause(pauseWallMap);
+                unpause(pauseWallMap, dominantsWallMap, saveWallMap, stopTrackingWallMap);
             }else {
-                unpause(pauseWallMap);
+                pause(pauseWallMap, dominantsWallMap, saveWallMap);
+                if (this.wallMap.getTracer().isActive())
+                    stopTrackingWallMap.setVisible(true);
             }
         });
-        this.wrappedMapVBox.getChildren().addAll(this.wrappedGrid.getGrid(), pauseWrappedMap);
-        this.wallMapVBox.getChildren().addAll(this.wallGrid.getGrid(), pauseWallMap);
+        unpause(pauseWallMap, dominantsWallMap, saveWallMap, stopTrackingWallMap);
+        this.wrappedMapVBox.getChildren().addAll(this.wrappedGrid.getGrid(), pauseWrappedMap, dominantsWrappedMap, saveWrappedMap, stopTrackingWrappedMap);
+        this.wallMapVBox.getChildren().addAll(this.wallGrid.getGrid(), pauseWallMap, dominantsWallMap, saveWallMap, stopTrackingWallMap);
 
         this.wrappedMapVBox.setAlignment(Pos.TOP_CENTER);
         this.wallMapVBox.setAlignment(Pos.TOP_CENTER);
 
-        this.wrappedStats = new StatsDisplay(this.wrappedMap);
-        this.wallStats = new StatsDisplay(this.wallMap);
+        this.wrappedStats = new StatsDisplay(this.wrappedMap, this.wrappedMagic);
+        this.wallStats = new StatsDisplay(this.wallMap, this.wallMagic);
 
         this.mainBox.getChildren().addAll(this.wrappedStats.getStats(), this.wrappedMapVBox, this.wallStats.getStats(), this.wallMapVBox);
 
@@ -107,11 +150,17 @@ public class App extends Application implements IGUIObserver{
         wallEngineThread.start();
     }
 
-    private void pause(Button button){
-        button.setText("Pause map");
+    private void unpause(Button pause, Button dominant, Button save, Button stop){
+        pause.setText("Pause map");
+        dominant.setVisible(false);
+        save.setVisible(false);
+        stop.setVisible(false);
     }
-    private void unpause(Button button){
+    private void pause(Button button, Button dominant, Button save){
         button.setText("Unpause map");
+        dominant.setText("Show animals with \ndominant genotype");
+        dominant.setVisible(true);
+        save.setVisible(true);
     }
 
 
@@ -160,7 +209,12 @@ public class App extends Application implements IGUIObserver{
         HBox form7 = new HBox(plantEnergyLabel, plantEnergyInput);
         form7.setSpacing(20);
 
+        CheckBox wrappedCheckBox = new CheckBox("Wrapped Map - Magic Evolution type");
+        CheckBox wallCheckBox = new CheckBox("Wall Map - Magic Evolution type");
+
         Button startButton = new Button("Start");
+        HBox startBox = new HBox(startButton);
+        startBox.setAlignment(Pos.CENTER);
         startButton.setOnAction(e->{
             try{
                 this.mapWidth = Integer.parseInt(mapWidthInput.getText());
@@ -170,7 +224,8 @@ public class App extends Application implements IGUIObserver{
                 this.startEnergy = Integer.parseInt(startEnergyInput.getText());
                 this.moveEnergy = Integer.parseInt(moveEnergyInput.getText());
                 this.plantEnergy = Integer.parseInt(plantEnergyInput.getText());
-
+                this.wrappedMagic = wrappedCheckBox.isSelected();
+                this.wallMagic = wallCheckBox.isSelected();
                 _init();
 
 
@@ -182,9 +237,8 @@ public class App extends Application implements IGUIObserver{
 
 
         VBox vBox = new VBox(20);
-        vBox.getChildren().addAll(form1, form2, form3, form4, form5, form6, form7, startButton);
+        vBox.getChildren().addAll(form1, form2, form3, form4, form5, form6, form7, wrappedCheckBox, wallCheckBox, startBox);
         vBox.setStyle("-fx-padding: 20;");
-        vBox.setAlignment(Pos.TOP_RIGHT);
         return vBox;
     }
 
