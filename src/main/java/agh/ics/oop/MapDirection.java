@@ -2,6 +2,7 @@ package agh.ics.oop;
 
 import java.util.Random;
 
+//ENUM CLASS FOR MAP DIRECTION OF ANIMALS
 public enum MapDirection{
     NORTH,
     SOUTH,
@@ -57,10 +58,12 @@ public enum MapDirection{
             case EAST -> new Vector2d(1, 0);
             case NORTHWEST -> new Vector2d(-1,1);
             case SOUTHWEST -> new Vector2d(-1, -1);
-            case NORTHEAST -> new Vector2d(-1,1);
+            case NORTHEAST -> new Vector2d(1,1);
             case SOUTHEAST -> new Vector2d(1, -1);
         };
     }
+
+    //USED WHEN CREATING ANIMAL
     public static MapDirection getRandomDirection(){
         Random generator = new Random();
         return MapDirection.values()[generator.nextInt(8)];

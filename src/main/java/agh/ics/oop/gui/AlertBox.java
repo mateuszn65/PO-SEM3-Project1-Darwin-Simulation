@@ -9,6 +9,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class AlertBox {
+    //MULTI-USE ALERT BOX
     public static void display(String title, String message){
         Stage window = new Stage();
 

@@ -8,6 +8,7 @@ public class EpochStats {
     private int avgLifeTime;
     private float avgNoChildren;
 
+    //CONSTRUCTOR
     public EpochStats(int epoch, int noAnimals, int noGrass, int avgEnergy, int avgLifeTime, float avgNoChildren){
         this.epoch = epoch;
         this.noAnimals = noAnimals;
@@ -16,7 +17,7 @@ public class EpochStats {
         this.avgLifeTime = avgLifeTime;
         this.avgNoChildren = avgNoChildren;
     }
-
+    //SUMS FOR AVERAGE STATS
     public void sumEpochStats(int epoch, int noAnimals, int noGrass, int avgEnergy, int avgLifeTime, float avgNoChildren){
         this.epoch += epoch;
         this.noAnimals += noAnimals;
@@ -30,6 +31,15 @@ public class EpochStats {
         return epoch;
     }
 
+    //GETTING DATA IN CSV FORMAT TO SAVE
+    public String headers(){
+        return "Epoch" + ","
+                + "NoAnimals" + ","
+                + "NoGrass" + ","
+                + "AvgEnergy" + ","
+                + "AvgLifeTime" + ","
+                + "AvgNoChildren" + System.lineSeparator();
+    }
     @Override
     public String toString() {
         return this.epoch + ","
@@ -39,7 +49,6 @@ public class EpochStats {
         + this.avgLifeTime + ","
         + this.avgNoChildren + System.lineSeparator();
     }
-
     public String avgToString(int n){
         return "TotalAVG" + ","
                 + this.noAnimals/n + ","
@@ -49,12 +58,4 @@ public class EpochStats {
                 + this.avgNoChildren/n + System.lineSeparator();
     }
 
-    public String headers(){
-        return "Epoch" + ","
-                + "NoAnimals" + ","
-                + "NoGrass" + ","
-                + "AvgEnergy" + ","
-                + "AvgLifeTime" + ","
-                + "AvgNoChildren" + System.lineSeparator();
-    }
 }

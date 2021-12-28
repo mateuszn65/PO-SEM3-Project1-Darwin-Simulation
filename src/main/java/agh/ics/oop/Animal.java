@@ -2,7 +2,6 @@ package agh.ics.oop;
 
 
 import javafx.scene.paint.Color;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,7 @@ public class Animal extends AbstractMapElement{
     protected List<IPositionChangeObserver> observers = new ArrayList<>();
 
 
-
+    //CONSTRUCTOR
     public Animal(IWorldMap map, Vector2d initialPosition, int startEnergy){
         super(initialPosition);
         this.map = map;
@@ -23,9 +22,7 @@ public class Animal extends AbstractMapElement{
     }
 
 
-    public MapDirection getDirection() {
-        return direction;
-    }
+    //GETTERS
     public int[] getArrayGenotype(){
         return this.genes.genotype;
     }
@@ -38,7 +35,15 @@ public class Animal extends AbstractMapElement{
         return resString.toString();
 
     }
+    public Color getColor(){
+        if (this.energy == 0) return Color.ANTIQUEWHITE;
+        if (this.energy < 0.5 * this.startEnergy) return Color.LIGHTGREY;
+        if (this.energy < 0.75 * this.startEnergy) return Color.GRAY;
+        if (this.energy < 1.25 * this.startEnergy) return Color.BROWN;
+        if (this.energy < 1.75 * this.startEnergy) return Color.FIREBRICK;
+        return Color.BLUEVIOLET;
 
+    }
     public String toString(){
         return switch (this.direction){
             case EAST -> this.energy + " > ";
@@ -53,13 +58,10 @@ public class Animal extends AbstractMapElement{
     }
 
 
-
-
-
+    //CHECKING STATE AND CHENCHING ENERGY
     public boolean isDead() {
         return this.energy <= 0;
     }
-
     public void changeEnergy(int value) {
         this.energy += value;
         if (this.energy < 0) {
@@ -67,6 +69,8 @@ public class Animal extends AbstractMapElement{
         }
     }
 
+
+    //PARENTS LOSING ENERGY FOR THE CHILD - RETURNS CHILD
     public Animal copulation(Animal parent){
         int childEnergy = (int) (0.25*this.energy + 0.25* parent.energy);
         changeEnergy((int) (-0.25*this.energy));
@@ -76,6 +80,7 @@ public class Animal extends AbstractMapElement{
         return child;
     }
 
+    //MOVING
     public void move(int x){
         switch (x){
             case 0 -> {
@@ -122,17 +127,8 @@ public class Animal extends AbstractMapElement{
         }
     }
 
-    public Color getColor(){
-        if (this.energy == 0) return Color.ANTIQUEWHITE;
-        if (this.energy < 0.5 * this.startEnergy) return Color.LIGHTGREY;
-        if (this.energy < 0.75 * this.startEnergy) return Color.GRAY;
-        if (this.energy < 1.25 * this.startEnergy) return Color.BROWN;
-        if (this.energy < 1.75 * this.startEnergy) return Color.FIREBRICK;
-        return Color.BLUEVIOLET;
 
-    }
-
-
+    //OBSERVERS
     public void addObserver(IPositionChangeObserver observer){
         this.observers.add(observer);
     }

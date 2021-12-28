@@ -5,27 +5,26 @@ import agh.ics.oop.IMapElement;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.util.Arrays;
-
 
 public class GuiElementBox {
+    private final VBox vBox;
 
-    private VBox vBox;
+    //SINGLE CELL IN THE GRID
     public GuiElementBox(IMapElement mapElement, AbstractWorldMap map, Color color, int cellSize, int[] dominant){
-
-
         this.vBox = new VBox();
         if (mapElement instanceof Animal && map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition()) > 0){
             int animalsCount = map.getNumberOfAnimalsOnSamePosition(mapElement.getPosition());
             Button button = new Button("" + animalsCount);
-            if (animalsCount >= 100){
+
+            if (cellSize < 25){
+                button.setStyle("-fx-font-size: 8");
+            }else if (animalsCount >= 100){
                 button.setStyle("-fx-font-size: 8");
             }else if (animalsCount >= 10){
                 button.setStyle("-fx-font-size: 10");
@@ -52,10 +51,7 @@ public class GuiElementBox {
                 }
             }
         }else {
-
-            Label label = new Label("");
             this.vBox.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
-            this.vBox.getChildren().add(label);
         }
         this.vBox.setAlignment(Pos.CENTER);
     }

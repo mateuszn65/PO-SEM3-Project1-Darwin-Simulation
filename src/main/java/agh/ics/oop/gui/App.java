@@ -2,41 +2,31 @@ package agh.ics.oop.gui;
 import agh.ics.oop.*;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
-import java.io.FileNotFoundException;
-import java.text.ParseException;
-import java.util.List;
 
 public class App extends Application implements IGUIObserver{
     private Stage window;
     private Scene scene1, scene2;
     //Starting parameters
-    private int mapWidth = 10,
-            mapHeight = 10,
-            jungleRatio = 40,
-            startingNumberOfAnimals = 15,
-            startEnergy = 50,
-            moveEnergy = 1,
-            plantEnergy = 5;
+    private int mapWidth = 10;
+    private int mapHeight = 10;
+    private int jungleRatio = 40;
+    private int startingNumberOfAnimals = 15;
+    private int startEnergy = 50;
+    private int moveEnergy = 1;
+    private int plantEnergy = 5;
     private boolean wrappedMagic, wallMagic;
-    private final int cellSize = 25;
-
-    private final Jungle jungle = new Jungle(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
-
+    private int cellSize = 25;
+    //maps
+    private final Jungle jungle = new Jungle(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200,
+            this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
     private final AbstractWorldMap wrappedMap = new WrappedMap();
     private final AbstractWorldMap wallMap = new WallMap();
+    //display
     private MapGrid wrappedGrid;
     private MapGrid wallGrid;
     private StatsDisplay wrappedStats;
@@ -44,18 +34,24 @@ public class App extends Application implements IGUIObserver{
     private final VBox wrappedMapVBox = new VBox(20);
     private final VBox wallMapVBox = new VBox(20);
     private final HBox mainBox = new HBox(20);
+    //engines
     private SimulationEngine wrappedEngine;
     private SimulationEngine wallEngine;
     private Thread wrappedEngineThread;
     private Thread wallEngineThread;
 
 
-    @Override
-    public void init(){
 
-    }
-
+    //SETS EVERYTHING FOR THE SIMULATION
     private void _init(){
+        if (this.mapWidth > 20 || this.mapHeight > 20){
+            if (this.mapWidth >= this.mapHeight)
+                this.cellSize = 600/this.mapWidth;
+            else
+                this.cellSize = 600/this.mapHeight;
+        }
+
+
         this.jungle.setJungleCorners(new Vector2d(this.mapWidth*(100-this.jungleRatio)/200, this.mapHeight*(100-this.jungleRatio)/200), new Vector2d(this.mapWidth*(100+this.jungleRatio)/200, this.mapHeight*(100+this.jungleRatio)/200));
         this.wrappedMap.setParameters(this.mapWidth, this.mapHeight, this.jungle, this.startingNumberOfAnimals, this.startEnergy, this.moveEnergy, this.plantEnergy);
         this.wallMap.setParameters(this.mapWidth, this.mapHeight, this.jungle, this.startingNumberOfAnimals, this.startEnergy, this.moveEnergy, this.plantEnergy);
@@ -139,13 +135,15 @@ public class App extends Application implements IGUIObserver{
         this.wrappedStats = new StatsDisplay(this.wrappedMap, this.wrappedMagic, "WrappedStats.csv");
         this.wallStats = new StatsDisplay(this.wallMap, this.wallMagic, "WallStats.csv");
 
+
         this.mainBox.getChildren().addAll(this.wrappedStats.getStats(), this.wrappedMapVBox, this.wallStats.getStats(), this.wallMapVBox);
 
 
 
         this.scene2 = new Scene(this.mainBox, 800+2*this.cellSize*this.mapWidth, 600+2*this.cellSize*this.mapHeight);
-        this.window.setScene(scene2);
 
+        this.window.setScene(scene2);
+        this.window.setMaximized(true);
 
 
         this.wrappedEngineThread = new Thread(this.wrappedEngine);
@@ -153,7 +151,7 @@ public class App extends Application implements IGUIObserver{
         wrappedEngineThread.start();
         wallEngineThread.start();
     }
-
+    //HELPER FUNCTIONS FOR BUTTONS
     private void unpause(Button pause, Button dominant, Button save, Button stop){
         pause.setText("Pause map");
         dominant.setVisible(false);
@@ -167,9 +165,8 @@ public class App extends Application implements IGUIObserver{
         save.setVisible(true);
     }
 
-
+    //HANDLES USERS INPUT
     private VBox startScene(){
-
         Label widthLabel = new Label("Map Width");
         TextField mapWidthInput = new TextField("" + this.mapWidth);
         mapWidthInput.setAlignment(Pos.CENTER);
@@ -230,8 +227,13 @@ public class App extends Application implements IGUIObserver{
                 this.plantEnergy = Integer.parseInt(plantEnergyInput.getText());
                 this.wrappedMagic = wrappedCheckBox.isSelected();
                 this.wallMagic = wallCheckBox.isSelected();
-                if (this.mapWidth <= 0 || this.mapHeight <= 0 || this.jungleRatio <= 0 || this.jungleRatio > 100 || this.startingNumberOfAnimals <= 0 || this.startEnergy <= 0 || this.moveEnergy < 0)
-                    throw new IllegalArgumentException("Incorrect input, can't be negative");
+                if (this.mapWidth <= 0 || this.mapWidth > 40 ||
+                        this.mapHeight <= 0 || this.mapHeight > 40 ||
+                        this.jungleRatio <= 0 || this.jungleRatio > 100 ||
+                        this.startingNumberOfAnimals <= 0 || this.startingNumberOfAnimals > this.mapWidth * this.mapHeight ||
+                        this.startEnergy <= 0 ||
+                        this.moveEnergy < 0)
+                    throw new IllegalArgumentException("Incorrect input, try more appropriate range of input");
                 _init();
 
 
@@ -253,17 +255,6 @@ public class App extends Application implements IGUIObserver{
 
 
     @Override
-    public void start(Stage primaryStage){
-        this.window = primaryStage;
-        this.window.setTitle("Evolution simulation");
-        this.scene1 = new Scene(startScene(), 400, 600);
-
-
-        this.window.setScene(scene1);
-        this.window.show();
-    }
-
-    @Override
     public void updateGUI(boolean wrapped) {
         Platform.runLater(()->{
             if (wrapped){
@@ -277,14 +268,23 @@ public class App extends Application implements IGUIObserver{
         });
     }
 
+
+    @Override
+    public void start(Stage primaryStage){
+        this.window = primaryStage;
+        this.window.setTitle("Evolution simulation");
+        this.scene1 = new Scene(startScene(), 400, 600);
+
+        this.window.setScene(scene1);
+        this.window.show();
+    }
+
     @Override
     public void stop() throws Exception {
         if (this.window.getScene() == this.scene2){
             this.wallEngineThread.interrupt();
             this.wrappedEngineThread.interrupt();
         }
-
-
         super.stop();
     }
 }

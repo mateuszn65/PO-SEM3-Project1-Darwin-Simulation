@@ -1,6 +1,5 @@
 package agh.ics.oop;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver{
@@ -8,12 +7,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected Vector2d lowerLeft;
     protected Vector2d upperRight;
 
-    protected int mapWidth,
-            mapHeight,
-            startingNumberOfAnimals,
-            startEnergy,
-            moveEnergy,
-            plantEnergy;
+    protected int mapWidth;
+    protected int mapHeight;
+    protected int startingNumberOfAnimals;
+    protected int startEnergy;
+    protected int moveEnergy;
+    protected int plantEnergy;
 
     protected Jungle jungle;
     protected Map<Vector2d, LinkedList<Animal>> animalMap = new HashMap<>();
@@ -25,7 +24,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     private int totalNumberOfDeadAnimals = 0, sumOfLivedDays = 0, numberOfDays = 0;
     private float sumOfChildren = 0;
 
-
+    //SETTING MAP PARAMETER
     public void setParameters(int width, int height, Jungle jungle,int startingNumberOfAnimals, int startEnergy, int moveEnergy, int plantEnergy){
         this.mapWidth = width;
         this.mapHeight = height;
@@ -38,10 +37,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.jungle = jungle;
     }
 
+    //GETTERS MOSTLY FOR dISPLAYING STATS
     public Tracer getTracer() {
         return tracer;
     }
-
     public int getNumberOfAnimalsOnSamePosition(Vector2d position){
         if(this.animalMap.get(position) != null){
             return this.animalMap.get(position).size();
@@ -56,7 +55,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
     public int getAverageEnergy(){
         int alive = 0, energySum = 0;
-        for (Animal animal: animalsList){
+        Animal[] animals = this.animalsList.toArray(new Animal[0]);
+        for (Animal animal: animals){
             if (!animal.isDead()){
                 alive++;
                 energySum += animal.energy;
@@ -65,9 +65,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         if (alive == 0)
             return 0;
         return energySum/alive;
-    }
-    public int getTotalNumberOfDeadAnimals() {
-        return totalNumberOfDeadAnimals;
     }
     public int getAverageLengthOfLife(){
         if (this.totalNumberOfDeadAnimals == 0)
@@ -80,9 +77,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public int getNumberOfDays(){
         return this.numberOfDays;
     }
-
     public int[] getArrayDominantGenotype(){
-
         if (this.genotypesList.size() > 0){
             int[] res = {};
             this.genotypesList.sort(new GenotypeComparator());
@@ -125,12 +120,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return resString.toString();
     }
 
-
+    //TO HANDLE DIFFERENT MAP EDGES
     abstract public Vector2d convertPosition(Vector2d position);
 
-
-
-    @Override
+    //FUNCTIONS HELPING WITH POSITIONS OF MAP ELEMENTS
     public void positionChange(Animal animal, Vector2d oldPosition, Vector2d newPosition) {
         removeAnimal(animal, oldPosition);
         addAnimal(animal, newPosition);
@@ -181,6 +174,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return false;
     }
 
+    //SPAWNING GRASS ONE IN JUNGLE AND ONE ON THE ENTIRE MAP
     public void addGrass(){
         Random generator = new Random();
         int toManyTimes = this.mapWidth*this.mapHeight;
@@ -212,16 +206,16 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             this.grassList.add(tmp);
         }
     }
-    public void removeGrass(Grass grass){
+    //REMOVE GRASS FROM HASHMAP AND LIST
+    private void removeGrass(Grass grass){
         this.grassMap.remove(grass.position);
         this.grassList.remove(grass);
     }
 
-    //for hashmap
+    //FUNCTIONS HANDLING ANIMALS HASHMAP
     private void _sort(LinkedList<Animal> list){
         list.sort(new EnergyComparator());
     }
-
     private void addAnimal(Animal animal, Vector2d position){
         if (canMoveTo(position)){
             LinkedList<Animal> animalsOnSamePosition = animalMap.get(position);
@@ -244,6 +238,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
     }
 
+    //HELPER FUNCTIONS FOR RANDOM PLACING OF ANIMALS
     private Vector2d getRandomPositionToPlaceAnimal(){
         Random generator = new Random();
         int toManyTimes = this.mapWidth*this.mapHeight*4;
@@ -255,7 +250,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         if (toManyTimes == 0) return null;
         return randpos;
     }
-
     private boolean randomlyPlaceAnimal(){
         Vector2d randpos = getRandomPositionToPlaceAnimal();
         if (randpos == null) return false;
@@ -263,12 +257,14 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         place(tmp);
         return true;
     }
+    //FUNCTION HANDLING RANDOM PLACING OF ANIMALS
     public void randomlyPlaceAnimals(){
         for (int i = 0; i < this.startingNumberOfAnimals; i++) {
             if (!randomlyPlaceAnimal()) return ;
         }
     }
 
+    //CHANGING ENERGY AFTER MOVES
     public void nextDay(){
         for (Animal animal: this.animalsList) {
             animal.changeEnergy(this.moveEnergy);
@@ -278,7 +274,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         if (this.tracer.isActive && !this.tracer.animal.isDead())
             this.tracer.daysTraced++;
     }
-
+    //HANDLES EATING
     public void checkForEating(){
         LinkedList<Grass> eatenGrass = new LinkedList<>();
         for(Grass grass: this.grassList){
@@ -314,7 +310,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             removeGrass(grass);
         }
     }
-
+    //HANDLES COPULATION
     public void checkForCopulation(){
         Collection<LinkedList<Animal>> animalsOnSamePositionToIter = this.animalMap.values();
         for (LinkedList<Animal> animalsOnSamePosition: animalsOnSamePositionToIter){
@@ -348,6 +344,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
     }
+    //HANDLES REMOVING DEAD ANIMALS
     public void removeDeadAnimals(){
         int n = animalsList.size();
         LinkedList<Animal> deadAnimals = new LinkedList<>();
@@ -372,6 +369,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             this.tracer.epochOfDeath = this.numberOfDays;
     }
 
+    //HANDLES MAGIC EVOLUTION
     public void magicEvolution(){
         Animal[] animals = this.animalsList.toArray(new Animal[0]);
         for (Animal animal : animals){
@@ -381,16 +379,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             tmp.genes.genotype = animal.genes.genotype.clone();
             place(tmp);
         }
-    }
-
-
-    public Vector2d getLowerLeft() {
-        return this.lowerLeft;
-    }
-
-
-    public Vector2d getUpperRight() {
-        return this.upperRight;
     }
 
 }

@@ -7,6 +7,8 @@ public class Genes {
     private int n = 32, v = 7;
     protected int[] genotype;
     private final Random generator = new Random();
+
+    //CONSTRUCTOR FOR STARTING ANIMALS
     public Genes(){
         this.genotype = new int[this.n];
         for (int i = 0; i < this.n; i++){
@@ -15,7 +17,7 @@ public class Genes {
         Arrays.sort(this.genotype);
     }
 
-
+    //CONSTRUCTOR FOR CHILD OF TWO ANIMALS
     public Genes(Animal animal1, Animal animal2){
         this.genotype = new int[this.n];
         int strongerSite = this.generator.nextInt(2);

@@ -1,10 +1,10 @@
 package agh.ics.oop;
 
 public class WrappedMap extends AbstractWorldMap{
-    public WrappedMap(){
+    //CONSTRUCTOR
+    public WrappedMap(){}
 
-    }
-
+    //RETURNS OPPOSITE SITE WHEN CROSSED THE EDGE
     @Override
     public Vector2d convertPosition(Vector2d position) {
         if (!canMoveTo(position)){

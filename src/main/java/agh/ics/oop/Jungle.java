@@ -4,16 +4,19 @@ public class Jungle {
     protected Vector2d lowerLeftJungle;
     protected Vector2d upperRightJungle;
 
+    //CONSTRUCTOR
     public Jungle(Vector2d lowerLeft, Vector2d upperRight){
         this.lowerLeftJungle = lowerLeft;
         this.upperRightJungle = upperRight;
     }
+    //SETTER
     public void setJungleCorners(Vector2d lowerLeft, Vector2d upperRight){
         this.lowerLeftJungle = lowerLeft;
         this.upperRightJungle = upperRight;
     }
 
-    public boolean belongsToJungle(Vector2d vector) {
-        return vector.follows(this.lowerLeftJungle) && vector.precedes(this.upperRightJungle);
+    //CHECKS IF POSITION BELONGS TO JUNGLE
+    public boolean belongsToJungle(Vector2d position) {
+        return position.follows(this.lowerLeftJungle) && position.precedes(this.upperRightJungle);
     }
 }

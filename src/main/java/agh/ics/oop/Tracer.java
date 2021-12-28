@@ -10,6 +10,7 @@ public class Tracer {
     protected int epochOfDeath;
     protected boolean isActive;
 
+    //CONSTRUCTOR
     public Tracer(){
         this.isActive = false;
     }
@@ -22,25 +23,25 @@ public class Tracer {
         this.epochOfDeath = -1;
         this.isActive = true;
     }
-
     public void stopTracking(){
         this.isActive = false;
     }
 
+    //GETTERS
     public boolean isActive() {
         return isActive;
     }
-
+    public Animal getAnimal() {
+        return this.animal;
+    }
     public int getNumberOfChildren() {
         return numberOfChildren;
     }
-
     public int getNumberOfDescendants(){
         if (this.descendants != null)
             return this.descendants.size();
         return 0;
     }
-
     public String getEpochOfDeath(){
         StringBuilder resString = new StringBuilder();
         if (this.animal.isDead()){

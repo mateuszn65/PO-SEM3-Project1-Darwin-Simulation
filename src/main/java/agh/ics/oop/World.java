@@ -7,14 +7,12 @@ import java.util.Arrays;
 import static java.lang.System.out;
 public class World {
 
+    //STARTS THE APPLICATION
     public static void main(String[] args){
         try{
             Application.launch(App.class, args);
         }catch (IllegalArgumentException exception){
             out.println(exception.getMessage());
         }
-
-
-
     }
 }

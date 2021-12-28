@@ -1,7 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.gui;
 
-import agh.ics.oop.gui.AlertBox;
-import agh.ics.oop.gui.EpochStats;
+import agh.ics.oop.AbstractWorldMap;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -27,6 +26,7 @@ public class StatsDisplay {
     private final EpochStats sumStats = new EpochStats(0 ,0 ,0 ,0 ,0 ,0);
     private final String fileName;
 
+    //CONSTRUCTOR
     public StatsDisplay(AbstractWorldMap map, boolean magic, String fileName){
         this.map = map;
         this.magic = magic;
@@ -61,7 +61,9 @@ public class StatsDisplay {
         _updateStats();
     }
 
+    //HELPER FUNCTION FOR UPDATING STATS
     private void _updateStats(){
+        //PLOT
         int days = this.map.getNumberOfDays();
         this.dataSeriesAnimals.getData().add(new XYChart.Data<>(days, this.map.getNumberOfAnimals()));
         this.dataSeriesGrass.getData().add(new XYChart.Data<>(days, this.map.getNumberOfGrass()));
@@ -71,6 +73,8 @@ public class StatsDisplay {
 
         }
         this.stats.getChildren().add(this.plot);
+
+        //ADDS MAGIC INFO
         if (this.magic){
             if (this.map.getNumberOfAnimals() == 5 && this.magicCounter < 3){
                 this.map.magicEvolution();
@@ -83,6 +87,8 @@ public class StatsDisplay {
                 this.displayCounter++;
             }
         }
+
+        //REST
         int epoch = this.map.getNumberOfDays();
         int noAnimals = this.map.getNumberOfAnimals();
         int noGrass = this.map.getNumberOfGrass();
@@ -102,23 +108,26 @@ public class StatsDisplay {
             this.sumStats.sumEpochStats(epoch, noAnimals, noGrass, avgEnergy, avgLifeTime, avgNoChildren);
         }
     }
+
+    //HANDLES UPDATING STATS
     public void updateStats(){
         this.stats.getChildren().clear();
         _updateStats();
-        if (this.map.tracer.isActive){
+        if (this.map.getTracer().isActive()){
             _updateTracingStats();
         }
     }
-
+    //ADDS TRACING STATS TO DISPLAY
     private void _updateTracingStats(){
-        Label chosenAnimal = new Label("TRACED ANIMAL:   " + this.map.tracer.animal);
+        Label chosenAnimal = new Label("TRACED ANIMAL:   " + this.map.getTracer().getAnimal());
         chosenAnimal.setAlignment(Pos.CENTER);
-        Label numberOfChildren = new Label("Number of children:  " + this.map.tracer.getNumberOfChildren());
-        Label numberOfDescendants = new Label("Number od descendants:  " + this.map.tracer.getNumberOfDescendants());
-        Label epochOfDeath = new Label(this.map.tracer.getEpochOfDeath());
+        Label numberOfChildren = new Label("Number of children:  " + this.map.getTracer().getNumberOfChildren());
+        Label numberOfDescendants = new Label("Number od descendants:  " + this.map.getTracer().getNumberOfDescendants());
+        Label epochOfDeath = new Label(this.map.getTracer().getEpochOfDeath());
         this.stats.getChildren().addAll(chosenAnimal, numberOfChildren, numberOfDescendants, epochOfDeath);
     }
 
+    //HANDLES SAVING TO FILE
     public void saveToFile(){
         try (PrintWriter writer = new PrintWriter(this.fileName)) {
             StringBuilder sb = new StringBuilder();

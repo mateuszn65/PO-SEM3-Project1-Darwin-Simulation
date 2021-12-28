@@ -1,9 +1,7 @@
 package agh.ics.oop;
 
-import agh.ics.oop.gui.App;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class SimulationEngine implements IEngine, Runnable{
@@ -12,15 +10,18 @@ public class SimulationEngine implements IEngine, Runnable{
     protected List<IGUIObserver> observers = new ArrayList<>();
     private boolean paused = false;
 
-    public void tooglePaused() {
-        this.paused = !this.paused;
-    }
-
+    //CONSTRUCTOR
     public SimulationEngine(AbstractWorldMap map){
         this.map = map;
         this.map.randomlyPlaceAnimals();
     }
 
+
+    public void tooglePaused() {
+        this.paused = !this.paused;
+    }
+
+    //OBSERVERS
     public void addObserver(IGUIObserver observer){
         this.observers.add(observer);
     }
@@ -33,6 +34,7 @@ public class SimulationEngine implements IEngine, Runnable{
         }
     }
 
+    //HEARTH OF THE ENGINE
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {

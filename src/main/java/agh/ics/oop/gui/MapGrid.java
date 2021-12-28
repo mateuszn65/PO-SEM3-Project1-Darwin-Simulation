@@ -19,7 +19,7 @@ public class MapGrid {
     private final AbstractWorldMap map;
     private final GridPane grid;
 
-
+    //CONSTRUCTOR
     public MapGrid(AbstractWorldMap map, int mapWidth, int mapHeight, int cellSize, Jungle jungle){
         this.map = map;
         this.mapHeight = mapHeight;
@@ -30,6 +30,8 @@ public class MapGrid {
         this.grid.setStyle("-fx-padding: 10;");
         _updateGrid(null);
     }
+
+    //HELPER FUNCTION FOR UPDATING GRID
     private void _updateGrid(int[] dominant){
         Label label = new Label("y/x");
         this.grid.add(label, 0, 0);
@@ -71,7 +73,7 @@ public class MapGrid {
             }
         }
     }
-
+    //HANDLES UPDATING GRID
     public void updateGrid(){
         this.grid.getChildren().clear();
         this.grid.getColumnConstraints().clear();
@@ -79,6 +81,7 @@ public class MapGrid {
         _updateGrid(null);
     }
 
+    //HANDLES DISPLAYING ANIMALS WITH DOMINANTS
     public void displayDominants(int[] dominant){
         this.grid.getChildren().clear();
         this.grid.getColumnConstraints().clear();

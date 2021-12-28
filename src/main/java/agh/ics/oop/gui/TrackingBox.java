@@ -12,9 +12,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class TrackingBox {
+    //DISPLAYS GENOTYPE AND ASKS USER IF HE WANTS TO TRACK CHOSEN ANIMAL
     public static void display(Animal animal, AbstractWorldMap map){
-
-
         Stage window = new Stage();
 
         window.initModality(Modality.APPLICATION_MODAL);
