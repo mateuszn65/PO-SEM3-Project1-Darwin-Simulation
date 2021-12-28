@@ -80,10 +80,12 @@ public class App extends Application implements IGUIObserver{
             }
         });
         Button saveWrappedMap = new Button("Save to file");
+        saveWrappedMap.setOnAction(e -> this.wrappedStats.saveToFile());
         Button stopTrackingWrappedMap = new Button("Stop tracking");
         stopTrackingWrappedMap.setOnAction(e -> {
             this.wrappedMap.getTracer().stopTracking();
             this.wrappedStats.updateStats();
+            stopTrackingWrappedMap.setVisible(false);
         });
         Button pauseWrappedMap = new Button();
         pauseWrappedMap.setOnAction(e->{
@@ -109,10 +111,12 @@ public class App extends Application implements IGUIObserver{
             }
         });
         Button saveWallMap = new Button("Save to file");
+        saveWallMap.setOnAction(e -> this.wallStats.saveToFile());
         Button stopTrackingWallMap = new Button("Stop tracking");
         stopTrackingWallMap.setOnAction(e -> {
             this.wallMap.getTracer().stopTracking();
             this.wallStats.updateStats();
+            stopTrackingWallMap.setVisible(false);
         });
         Button pauseWallMap = new Button();
         pauseWallMap.setOnAction(e->{
@@ -132,8 +136,8 @@ public class App extends Application implements IGUIObserver{
         this.wrappedMapVBox.setAlignment(Pos.TOP_CENTER);
         this.wallMapVBox.setAlignment(Pos.TOP_CENTER);
 
-        this.wrappedStats = new StatsDisplay(this.wrappedMap, this.wrappedMagic);
-        this.wallStats = new StatsDisplay(this.wallMap, this.wallMagic);
+        this.wrappedStats = new StatsDisplay(this.wrappedMap, this.wrappedMagic, "WrappedStats.csv");
+        this.wallStats = new StatsDisplay(this.wallMap, this.wallMagic, "WallStats.csv");
 
         this.mainBox.getChildren().addAll(this.wrappedStats.getStats(), this.wrappedMapVBox, this.wallStats.getStats(), this.wallMapVBox);
 
@@ -226,13 +230,18 @@ public class App extends Application implements IGUIObserver{
                 this.plantEnergy = Integer.parseInt(plantEnergyInput.getText());
                 this.wrappedMagic = wrappedCheckBox.isSelected();
                 this.wallMagic = wallCheckBox.isSelected();
+                if (this.mapWidth <= 0 || this.mapHeight <= 0 || this.jungleRatio <= 0 || this.jungleRatio > 100 || this.startingNumberOfAnimals <= 0 || this.startEnergy <= 0 || this.moveEnergy < 0)
+                    throw new IllegalArgumentException("Incorrect input, can't be negative");
                 _init();
 
 
 
             }catch (NumberFormatException ex){
                 AlertBox.display("Wrong Input", "Can't convert input into Integer");
+            }catch (IllegalArgumentException ex){
+                AlertBox.display("Incorrect Input", ex.getMessage());
             }
+
         });
 
 

@@ -63,13 +63,15 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
         if (alive == 0)
-            return -1;
+            return 0;
         return energySum/alive;
     }
     public int getTotalNumberOfDeadAnimals() {
         return totalNumberOfDeadAnimals;
     }
     public int getAverageLengthOfLife(){
+        if (this.totalNumberOfDeadAnimals == 0)
+            return 0;
         return this.sumOfLivedDays/this.totalNumberOfDeadAnimals;
     }
     public float getAverageChildren(){
@@ -80,8 +82,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     public int[] getArrayDominantGenotype(){
-        int[] res = {};
+
         if (this.genotypesList.size() > 0){
+            int[] res = {};
             this.genotypesList.sort(new GenotypeComparator());
             int[] prev = genotypesList.getFirst();
             int i = 1;
@@ -99,14 +102,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 if (F[j] > F[maxAt])
                     maxAt = j;
             }
-            res = this.genotypesList.get(maxAt);
+            res = this.genotypesList.get(maxAt-1);
+            return res;
         }
-        return res;
+        return null;
     }
     public String getDominantGenotype(){
         int[] res = getArrayDominantGenotype();
-
         StringBuilder resString = new StringBuilder();
+        if (res == null)
+            return resString.toString();
+
         for (int i = 0; i < 10; i++){
             resString.append(res[i]);
             resString.append(" ");
